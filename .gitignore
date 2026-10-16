@@ -1,0 +1,38 @@
+# OS Junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment & Secrets
+.env
+.env.*
+
+# Obsidian Local Workspace State & Caches
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache/
+.obsidian/plugins/*/data.json
+.trash/
+
+# Generated Diagrams & Study Notes
+# Keep the folder structure in Git, but ignore personal study output by default.
+# (Comment out these lines if you want to back up your lessons to a private repo)
+# Lessons/*
+# !Lessons/.gitkeep
+# viz/*
+# !viz/.gitkeep
+
+# Runtime & Logs
+.memory/
+.system_generated/
+*.log
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+
+
+
+# Ignore Smart Environment folder
+.smart-env
