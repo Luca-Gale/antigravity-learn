@@ -1,6 +1,4 @@
-# Antigravity Learning System (Obsidian Edition)
-
-[![How I Use AI to Learn Things](assets/thumbnail.png)](https://www.youtube.com/watch?v=kzcI5F4tGiU)
+# Antigravity Learning Assistant
 
 A self-contained **Socratic AI Learning Vault** adapted for **Google Antigravity** and **Obsidian**, based on Amos Blomqvist's framework from [*How I Use AI to Learn Things*](https://www.youtube.com/watch?v=kzcI5F4tGiU).
 
