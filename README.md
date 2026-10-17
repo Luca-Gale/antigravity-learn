@@ -42,8 +42,16 @@ learn/
 ├── viz/                              # Generated SVG/PNG visual assets for lessons
 │   └── .gitkeep
 │
-├── scripts/                          # Optional automation utilities
+├── scripts/                          # Automation utilities
+│   ├── Find-RelatedNotes.ps1         # Semantic vault & Smart Connections lookup
+│   ├── Open-ObsidianNote.ps1         # Auto-focuses new lesson notes in Obsidian via URI
 │   └── Sync-ObsidianLesson.ps1       # PowerShell transcript-to-Obsidian stream utility
+│
+├── .obsidian/                        # Pre-configured Obsidian vault settings & plugins
+│   ├── snippets/
+│   │   └── wide-lessons.css          # Full-width note & responsive Mermaid styling
+│   └── plugins/
+│       └── antigravity-cli-sidebar/  # Embedded CLI + auto-popup listener for new lessons
 │
 ├── assets/                           # Repository media
 │   └── thumbnail.png
@@ -78,7 +86,7 @@ Ask Antigravity to teach you any concept, from a quick question to an entire fie
 > *"Help me genuinely understand eigenvectors and why they matter."*
 > *"Walk me through how transformers compute attention."*
 
-Open the corresponding file inside `Lessons/<topic-name>.md` in Obsidian side-by-side to watch your structured lesson note grow in real time.
+When a new lesson starts, `Lessons/<topic-name>.md` automatically pops up as your active tab in Obsidian so you can watch your structured lesson note grow in real time.
 
 ---
 
@@ -90,24 +98,25 @@ Whenever you ask to learn something, the agent runs a strict four-phase loop tha
 - Automatically queries your Obsidian vault and Smart Connections (`scripts/Find-RelatedNotes.ps1`) to find 1–3 semantically closest prior lessons.
 - Extracts their bedrock principles and determines conceptual bridges or cross-domain isomorphisms so you never learn in isolation.
 
-### Phase 1: Probe (Diagnostic Calibration)
-- Anchors to the related notes discovered in Phase 0 to establish the floor of what you already accept.
-- Uses Antigravity's interactive `ask_question` UI modal to binary-search the exact edge of your current knowledge.
-- Distractors are **diagnostic**—each wrong choice maps to a specific misconception.
-- Includes an automatic *"I don't know"* option so you never have to guess blindly.
+### Phase 1: Probe (Multi-Turn Binary Search Calibration)
+- Immediately initializes `Lessons/<topic-name>.md` and **pops it up as the active tab in Obsidian** (`scripts/Open-ObsidianNote.ps1` + vault create listener).
+- **Plots every question and its numbered options directly onto the Obsidian note *before* you answer**, in the same step as invoking Antigravity's interactive `ask_question` UI modal, so you can read the LaTeX-rendered question and choices in Obsidian while selecting your answer.
+- **Multi-Turn Binary Search (3–6 Adaptive Questions)**: Asks one diagnostic question per turn, escalating difficulty sharply when you answer correctly and narrowing in when you miss or select *"I don't know"*, until both your **floor** and **ceiling** are bracketed across every prerequisite strand.
+- **Bare-Claim Diagnostic Distractors**: Every option is constructed as a parallel bare claim (zero inline *"because..."* giveaways) where each distractor maps to a specific misconception.
 - Clarifies your exact learning goal before planning.
 
 ### Phase 2: Plan (Dependency Graph)
-- Dispatches the `researcher` subagent if any formula, historical claim, or edge case needs verification.
-- Identifies the **Unconditional Truths** at the root of the topic.
+- Dispatches the `researcher` subagent to map the topic's genuine first principles and verify formulas/claims.
+- Identifies the **Unconditional Truths** at the root of the topic and stress-tests that they aren't disguised mid-level theorems.
 - Draws a **Mermaid Dependency Map** (`graph TD`) anchoring onto prior vault notes (`[[Prior Note]]`) and showing how root axioms flow into derived concepts and your target goal, and waits for your approval before teaching.
 
-### Phase 3: Teach (Node-by-Node Append Loop)
-- Steps through the dependency graph one node at a time:
-  1. **Motivate**: Why do we need this step right now?
-  2. **Establish**: Derive the concept Socratically or expositorily.
-  3. **Connect**: Tie it explicitly to the prior foundation using cross-disciplinary analogies and reciprocal Obsidian `[[wikilinks]]`.
-  4. **Verify**: Check comprehension with a quick diagnostic quiz and log graded feedback (`> [!success] Correct ✓` or `> [!failure] Incorrect ✗`).
+### Phase 3: Teach (Multi-Block Node-by-Node Append Loop)
+- Steps through the dependency graph one node at a time using a rich **5-block structure per node**:
+  1. **Block 1 — Motivate** (`> [!abstract] Why We Need This Now`): What concrete problem or limitation forces us down this path right now?
+  2. **Block 2 — Establish the Foundation** (`> [!abstract] Unconditional Truth`): State the caveat-free truth or universal atomic unit (*"ALL X is done through {____}"*).
+  3. **Block 3 — Motivated Derivation & Deep Theory** (`> [!abstract] Step-by-Step Derivation & Intuition`): 3Blue1Brown-style step-by-step derivation, motivating every algebraic/logical move with examples and diagrams.
+  4. **Block 4 — Connect to the Graph** (`> [!tip] Connecting the Graph & Vault Isomorphisms`): Tie the node explicitly to prior nodes and `[[Prior Note]]` wikilinks, highlighting "the click".
+  5. **Block 5 — Plot Quiz & Verify** (`> [!question] Quiz — Node N Check`): Plots the quiz to Obsidian *as* `ask_question` opens, then immediately logs graded feedback (`> [!success] Quiz — correct ✓`, `> [!failure] Quiz — incorrect ✗`, or `> [!question] Quiz — I don't know`), repairing the node with a dedicated Repair Block if missed.
 - **Append-Only Guarantee**: The agent never overwrites your active lesson file (`Append: true` only). Obsidian updates smoothly at the bottom without scroll-jumping or erasing personal notes you type along the way.
 
 ---

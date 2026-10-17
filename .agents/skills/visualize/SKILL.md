@@ -27,11 +27,14 @@ This teaching system builds a **dependency graph in the learner's head** — axi
 ### 1. Structural / Relational Visuals: Mermaid (Native in Obsidian)
 - **Best for**: Dependency graphs, flowcharts (`graph TD` / `graph LR`), sequence diagrams, state machines, architecture pipelines.
 - **Obsidian Support**: Obsidian renders Mermaid **natively and interactively** without needing any external renderer!
+- **Concise Labels & Layout**:
+  - Prefer `graph TD` (top-down) over wide `graph LR` diagrams whenever there are more than 3 sequential steps, so the diagram flows vertically down the note rather than cramping horizontally.
+  - Keep node labels short (3–6 words per line, using `<br/>` for line breaks) and prune any decorative nodes (aim for 4–7 nodes maximum per diagram).
 - **Usage**:
   ```markdown
   ```mermaid
   graph TD
-      A["Unconditional Truth: Packet Switching"] --> B["Ordering & Reassembly"]
+      A["Unconditional Truth:<br/>Packet Switching"] --> B["Ordering & Reassembly"]
       A --> C["Retransmission on Loss"]
       B --> D["Reliable Stream (TCP)"]
       C --> D
@@ -40,7 +43,7 @@ This teaching system builds a **dependency graph in the learner's head** — axi
 
 ### 2. Spatial / Geometric Visuals: SVG / PNG
 - **Best for**: Coordinate systems, vectors, number lines, plots, physical layouts, custom shapes with exact coordinates.
-- **Obsidian Support**: Obsidian natively renders SVG vector files using `![[viz-<slug>.svg]]` or PNG raster images using `![[viz-<slug>.png|500]]`.
+- **Obsidian Support**: Obsidian natively renders SVG vector files using `![[viz-<slug>.svg]]` or PNG raster images using `![[viz-<slug>.png|650]]`.
 - **Location**: Save visual assets directly to `viz/` at the root of the workspace vault.
 
 ---
