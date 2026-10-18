@@ -114,7 +114,7 @@ You can't teach into his zone of proximal development without knowing where its 
 > Every lesson is decoupled into two paired files:
 > - **Theory Note (`Lessons/<topic>.md`)**: Create (`Overwrite: false`) containing YAML frontmatter (`practice: "[[<topic> - Practice]]"`), `# <Topic>`, a top navigation banner (`> [!tip] Dual-Note Cockpit` linking to `[[<topic> - Practice|📝 Open Practice & Quiz Archive]]`), `> [!abstract] Core Principle`, and the Phase 0 grounding callout.
 > - **Practice & Quiz Note (`Quizzes/<topic> - Practice.md`)**: Create (`Overwrite: false`) containing YAML frontmatter (`theory: "[[<topic>]]"`), `# <Topic> — Practice & Assessment Archive`, a top navigation banner (`> [!tip] Dual-Note Cockpit` linking to `[[<topic>|📖 Return to Theory Note]]`), and the first `> [!question] Quiz — Probe 1` block.
-> - **Pop up the Cockpit ONCE**: Run `powershell -ExecutionPolicy Bypass -File scripts/Open-ObsidianNote.ps1 "Lessons/<topic>.md"` in the same turn. The `antigravity-cli-sidebar` Obsidian plugin automatically places `Lessons/<topic>.md` in the left pane and `Quizzes/<topic> - Practice.md` in a side-by-side right split pane without stealing terminal focus. **Never run `Open-ObsidianNote.ps1` repeatedly on subsequent turns.**
+> - **Automatic Cockpit Placement & Overwrite Guard**: The `antigravity-cli-sidebar` Obsidian plugin automatically listens to vault file creation events (`app.vault.on("create")`) and places `Lessons/<topic>.md` in the left pane and `Quizzes/<topic> - Practice.md` in a side-by-side right split pane the moment they are created. Always check if a note already exists via `view_file` and ensure `Overwrite: false` so existing notes are never overwritten.
 >
 > **2. Plot Every Question in `Quizzes/<topic> - Practice.md` BEFORE the User Answers**:
 > Because `ask_question` blocks execution until the user responds, you MUST append the `> [!question]` callout (with the full question stem and numbered options `1.`, `2.`, `3.`, `4.`) to `Quizzes/<topic> - Practice.md` via `write_to_file` (`Append: true`) **in the exact same tool-call turn (or immediately before) calling `ask_question`**.
@@ -196,8 +196,8 @@ This workspace is a self-contained Obsidian Vault using the **Dual-Note Cockpit*
 
 1. **Strict Append-Only Updates**:
    - After creating `Lessons/<topic>.md` and `Quizzes/<topic> - Practice.md` at the start of Phase 1 (`Overwrite: false`), NEVER overwrite either file (`Overwrite: true`). Always use `write_to_file` with `Append: true`.
-2. **One-Shot Cockpit Initialization**:
-   - Right after creating both notes in Phase 1, run `powershell -ExecutionPolicy Bypass -File scripts/Open-ObsidianNote.ps1 "Lessons/<topic>.md"` ONCE. The `antigravity-cli-sidebar` plugin automatically opens `Lessons/<topic>.md` on the left and `Quizzes/<topic> - Practice.md` on the right (and can be toggled between Split Cockpit and Single-Pane Auto-Switch in Obsidian Settings -> Antigravity CLI).
+2. **Automatic Cockpit Placement via Sidebar Plugin**:
+   - The `antigravity-cli-sidebar` plugin automatically listens to file creations (`app.vault.on("create")`) and immediately opens `Lessons/<topic>.md` on the left and `Quizzes/<topic> - Practice.md` on the right (and can be toggled between Split Cockpit and Single-Pane Auto-Switch in Obsidian Settings -> Antigravity CLI) with zero external scripts needed.
 3. **Obsidian Callout Types**:
    - **In `Lessons/<topic>.md` (Theory Note)**:
      - `> [!abstract] Title` — Theoretical blocks (Core Principle, Motivation, Unconditional Truth, Step-by-Step Derivation).

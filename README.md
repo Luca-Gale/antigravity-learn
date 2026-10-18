@@ -44,7 +44,6 @@ learn/
 │
 ├── scripts/                          # Automation utilities
 │   ├── Find-RelatedNotes.ps1         # Semantic vault & Smart Connections lookup
-│   ├── Open-ObsidianNote.ps1         # Auto-focuses new lesson notes in Obsidian via URI
 │   └── Sync-ObsidianLesson.ps1       # PowerShell transcript-to-Obsidian stream utility
 │
 ├── .obsidian/                        # Pre-configured Obsidian vault settings & plugins
@@ -99,7 +98,7 @@ Whenever you ask to learn something, the agent runs a strict four-phase loop tha
 - Extracts their bedrock principles and determines conceptual bridges or cross-domain isomorphisms so you never learn in isolation.
 
 ### Phase 1: Probe (Multi-Turn Binary Search Calibration)
-- Immediately initializes `Lessons/<topic-name>.md` and **pops it up as the active tab in Obsidian** (`scripts/Open-ObsidianNote.ps1` + vault create listener).
+- Immediately initializes `Lessons/<topic-name>.md` and **pops it up as the active tab in Obsidian** (handled automatically by the sidebar plugin vault listener).
 - **Plots every question and its numbered options directly onto the Obsidian note *before* you answer**, in the same step as invoking Antigravity's interactive `ask_question` UI modal, so you can read the LaTeX-rendered question and choices in Obsidian while selecting your answer.
 - **Multi-Turn Binary Search (3–6 Adaptive Questions)**: Asks one diagnostic question per turn, escalating difficulty sharply when you answer correctly and narrowing in when you miss or select *"I don't know"*, until both your **floor** and **ceiling** are bracketed across every prerequisite strand.
 - **Bare-Claim Diagnostic Distractors**: Every option is constructed as a parallel bare claim (zero inline *"because..."* giveaways) where each distractor maps to a specific misconception.
