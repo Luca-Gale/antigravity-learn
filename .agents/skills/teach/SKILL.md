@@ -177,6 +177,7 @@ Build his dependency graph one **node** at a time — routing permanent theory t
 >    - Highlight the "click" — how a pile of seemingly separate facts collapses into this single generating principle.
 > 5. **Block 5 — Plot Quiz & Inoculate Against Misconceptions (`> [!question] Quiz — Node N Check` in `Quizzes/<topic> - Practice.md`)**:
 >    - Append the `> [!question]` callout (with the question stem and numbered bare-claim options `1.`–`4.`) to `Quizzes/<topic> - Practice.md` in the same turn as calling `ask_question`.
+    - **CRITICAL — SHUFFLE OPTION ORDER**: Never default to placing the correct answer as Option 1! Explicitly randomize the correct answer's position among options 1, 2, and 3 (keeping `"I don't know"` as the final option).
 >    - When the user answers, immediately append the graded result callout (`> [!success] Quiz — correct ✓`, `> [!failure] Quiz — incorrect ✗`, or `> [!question] Quiz — I don't know`) to `Quizzes/<topic> - Practice.md` containing:
 >      - `Your answer: <index>. <label>`
 >      - `Correct answer: <index>`

@@ -19,8 +19,9 @@ This workspace implements the deep learning framework from Amos Blomqvist's [*Ho
    - **CRITICAL — MULTI-TURN BINARY-SEARCH PROBING (NEVER JUST 1 QUESTION)**:
      - Phase 1a (Probe) is a mapping job, not a 1-question spot-check. Ask **3 to 6 sequential diagnostic questions, ONE per turn**, adapting each question to the user's previous answer to binary-search and bracket the exact edge of their understanding (finding both a **floor** of what they reliably know and a **ceiling** where their knowledge runs out or hits a misconception) across every prerequisite strand.
      - Never advance to Phase 1b/Phase 2 after a single correct answer—escalate difficulty sharply until something breaks or the ceiling is located.
-   - **Quiz Option Construction (Bare Claims Only)**:
+   - **Quiz Option Construction (Bare Claims & Randomized Option Position)**:
      - Build every quiz option as a **bare claim with zero inline justification** ("because..."), mutated from the correct claim into parallel misconceptions so option length and style never give away the answer.
+     - **CRITICAL — SHUFFLE OPTION ORDER (NEVER ALWAYS OPTION 1)**: LLMs naturally draft the correct answer first, but you **MUST randomly rotate/shuffle the correct claim among positions 1, 2, and 3** (or across all positions prior to "I don't know"). Never leave the correct answer predictably as Option 1. Ensure an even, unpredictable distribution across turns so option position never leaks the answer.
      - Always include `"I don't know (explore this gap)"` as the final option.
      - When the user's answer returns, immediately append a graded Obsidian callout (`> [!success] Quiz — correct ✓`, `> [!failure] Quiz — incorrect ✗`, or `> [!question] Quiz — I don't know`) to `Quizzes/<topic-name> - Practice.md` showing `Your answer:`, `Correct answer:`, and a deep theoretical explanation.
 
