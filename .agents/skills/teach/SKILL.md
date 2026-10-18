@@ -110,21 +110,22 @@ Never teach in isolation when the user already has relevant knowledge in their O
 You can't teach into his zone of proximal development without knowing where its edges are, and you can't aim the teaching without knowing what he's actually reaching for. **Never stop after just one question!**
 
 > [!IMPORTANT]
-> **1. Pop Up the Note Immediately at the Beginning of Phase 1**:
-> At the very start of Phase 1:
-> - Create `Lessons/<topic>.md` (`Overwrite: false`) containing the YAML frontmatter, `# <Topic>`, `> [!abstract] Core Principle`, the Phase 0 grounding callout, and the first `> [!question] Quiz — Probe 1` block.
-> - **Immediately pop up the note as the active tab in Obsidian** by running `powershell -ExecutionPolicy Bypass -File scripts/Open-ObsidianNote.ps1 "Lessons/<topic>.md"` in the same turn (and the `antigravity-cli-sidebar` plugin will also auto-focus it).
+> **1. Initialize the Dual-Note Cockpit ONCE at the Beginning of Phase 1**:
+> Every lesson is decoupled into two paired files:
+> - **Theory Note (`Lessons/<topic>.md`)**: Create (`Overwrite: false`) containing YAML frontmatter (`practice: "[[<topic> - Practice]]"`), `# <Topic>`, a top navigation banner (`> [!tip] Dual-Note Cockpit` linking to `[[<topic> - Practice|📝 Open Practice & Quiz Archive]]`), `> [!abstract] Core Principle`, and the Phase 0 grounding callout.
+> - **Practice & Quiz Note (`Quizzes/<topic> - Practice.md`)**: Create (`Overwrite: false`) containing YAML frontmatter (`theory: "[[<topic>]]"`), `# <Topic> — Practice & Assessment Archive`, a top navigation banner (`> [!tip] Dual-Note Cockpit` linking to `[[<topic>|📖 Return to Theory Note]]`), and the first `> [!question] Quiz — Probe 1` block.
+> - **Pop up the Cockpit ONCE**: Run `powershell -ExecutionPolicy Bypass -File scripts/Open-ObsidianNote.ps1 "Lessons/<topic>.md"` in the same turn. The `antigravity-cli-sidebar` Obsidian plugin automatically places `Lessons/<topic>.md` in the left pane and `Quizzes/<topic> - Practice.md` in a side-by-side right split pane without stealing terminal focus. **Never run `Open-ObsidianNote.ps1` repeatedly on subsequent turns.**
 >
-> **2. Plot Every Question in Obsidian BEFORE the User Answers**:
-> Because `ask_question` blocks execution until the user responds, you MUST write/append the `> [!question]` callout (with the full question stem and numbered options `1.`, `2.`, `3.`, `4.`) to `Lessons/<topic>.md` via `write_to_file` **in the exact same tool-call turn (or immediately before) calling `ask_question`**.
-> This guarantees the user sees the question and its LaTeX-formatted options live in Obsidian *while* deciding their answer, just like in Amos Blomqvist's workflow.
+> **2. Plot Every Question in `Quizzes/<topic> - Practice.md` BEFORE the User Answers**:
+> Because `ask_question` blocks execution until the user responds, you MUST append the `> [!question]` callout (with the full question stem and numbered options `1.`, `2.`, `3.`, `4.`) to `Quizzes/<topic> - Practice.md` via `write_to_file` (`Append: true`) **in the exact same tool-call turn (or immediately before) calling `ask_question`**.
+> This guarantees the user sees the question and its LaTeX-formatted options live in the right-hand Quiz pane *while* viewing the Theory pane on the left.
 
 #### 1a. Current Level — Multi-Turn Binary Search via `ask_question` (1 Question Per Turn)
 **This is a mapping job, not a spot-check.** Your goal is to locate the *edge* of his understanding — the frontier where what he reliably knows turns into what he doesn't — along every prerequisite strand the planned lesson will depend on. Until you've actually found that edge, you cannot teach into it, so this phase takes **multiple turns (typically 3 to 6 sequential questions, asked ONE at a time so each question adapts to the previous answer)**. There is no rush.
 
 **The edge is only located when it's bracketed.** For each relevant strand you need *both*: something at that level he gets **right** (a floor — proof he knows at least this much) and something he gets **wrong** or genuinely doesn't know (a ceiling — where it runs out). The edge sits between them. One side alone tells you almost nothing.
 
-- **Ask ONE diagnostic question per turn, then adapt**: Never batch all probe questions into a single static turn, and never stop after just 1 question. Ask Probe Question 1 -> wait for his answer -> log the graded result (`> [!success]` / `> [!failure]` / `> [!question] Quiz — I don't know`) -> decide the next question based on his answer and append Probe Question 2 in that same turn before calling `ask_question`.
+- **Ask ONE diagnostic question per turn, then adapt**: Never batch all probe questions into a single static turn, and never stop after just 1 question. Ask Probe Question 1 -> wait for his answer -> log the graded result (`> [!success]` / `> [!failure]` / `> [!question] Quiz — I don't know`) into `Quizzes/<topic> - Practice.md` -> decide the next question based on his answer and append Probe Question 2 to `Quizzes/<topic> - Practice.md` in that same turn before calling `ask_question`.
 - **All-correct is not "done" — it means the questions were too easy**: A run of right answers gives you a floor with no ceiling: you've proven he knows *at least* this much and learned nothing about where his knowledge ends. **Do not advance to Phase 2 after a single correct answer!** Escalate — go harder until something finally breaks. If he never misses, you never found the edge.
 - **Binary-search the edge**: When he nails a question, jump the difficulty up *sharply* — don't inch forward. When he misses (or picks *"I don't know"*), you've bracketed the edge from above; narrow back in to pin exactly where it sits. This finds the frontier fast, without a hundred timid questions.
 - **One wrong answer is not "done" either — and it is *not* a cue to start teaching**: A single miss is one coordinate, and you don't yet know its kind: a careless slip, a narrow isolated gap, or a systematic misconception. Probe *around* it to characterize it before concluding anything. Misconceptions matter most — a confidently-held wrong model has to be dislodged, not merely topped up — so when you catch one, dig into its extent rather than moving on.
@@ -134,8 +135,8 @@ Do not advance to Phase 1b / Phase 2 until, for each goal-relevant strand, you c
 
 #### 1b. Learning Goal — Clarifying with `ask_question`
 Once the knowledge frontier is bracketed, find out what he actually wants taught. With a subject he doesn't know yet, the goal is often hard for him to articulate — "I want to understand LLMs" or "how differential equations work" can mean ten different things, and which one it is completely changes what you teach. Interrogate the vision until it's concrete.
-- Append `> [!question] Question — Learning Goal` to `Lessons/<topic>.md` alongside calling `ask_question`.
-- Once he answers, log `> [!example] Answer` with his chosen goal into the note.
+- Append `> [!question] Question — Learning Goal` to `Quizzes/<topic> - Practice.md` alongside calling `ask_question`.
+- Once he answers, log `> [!example] Answer` with his chosen goal into `Quizzes/<topic> - Practice.md`.
 
 ---
 
@@ -149,40 +150,40 @@ This is the highest-leverage step; don't rush it. With his level (floor & ceilin
 4. **Construct the Motivated Discovery Path**: What's the motivated discovery path from those truths to his goal? Where does each step come from — why would anyone reach for it?
 5. **Stress-Test the Roots Before Presenting**: For every node you're treating as foundational, ask: is this genuinely an unconditional truth *for him*, or a disguised theorem that itself derives from something simpler he'd accept at face value? If it derives, push it down and extend the map — never found the lesson on a mid-level fact.
 6. **Present the Plan in Chat and in Obsidian**:
-   - **1. The approach, in prose**: What we'll cover, in what order, and why this way — given where his edge sits (Phase 1a) and what he's reaching for (Phase 1b).
+   - **1. The approach, in prose**: Append the roadmap and dependency DAG (`graph TD`) to `Lessons/<topic>.md` (`Append: true`), explaining what we'll cover, in what order, and why this way — given where his edge sits (Phase 1a) and what he's reaching for (Phase 1b).
    - **2. The dependency map**: The plan's backbone as a DAG (`graph TD`): prior vault notes and unconditional truths at the roots, each derived node hanging off what it depends on, his goal as the sink.
    - **Keep Mermaid Node Labels Concise**: Use short, crisp node labels (3–6 words per line) so the diagram renders cleanly and legibly across the Obsidian pane without cramping.
-   - **Then stop and wait for his go-ahead**: Append a `> [!question] Question — Plan Approval` callout and ask via `ask_question` whether the plan looks good or if he wants to adjust the scope/depth. Never begin Phase 3 until he approves the plan.
+   - **Then stop and wait for his go-ahead**: Append a `> [!question] Question — Plan Approval` callout to `Quizzes/<topic> - Practice.md` and ask via `ask_question` whether the plan looks good or if he wants to adjust the scope/depth. Never begin Phase 3 until he approves the plan.
 
 ---
 
 ### Phase 3 — Teach (The Multi-Block Node-by-Node Loop)
 
-Build his dependency graph one **node** at a time — and every node gets the same rich, multi-block treatment as in Amos Blomqvist's video.
+Build his dependency graph one **node** at a time — routing permanent theory to `Lessons/<topic>.md` and comprehension quizzes to `Quizzes/<topic> - Practice.md`.
 
 > [!IMPORTANT]
-> **Rich Multi-Block Theory (Never Just One Cramped Block!)**:
-> In Amos Blomqvist's system (`md-log`), the assistant doesn't dump a single shallow summary box and immediately quiz. Instead, each node's explanation is structured as **multiple distinct, well-paced conceptual blocks** that walk through the full theoretical story before testing comprehension.
->
-> For **every node**, write a rich multi-block sequence in `Lessons/<topic>.md` (`Append: true`) AND mirror the full explanation in chat:
-> 1. **Block 1 — Motivate (`### 1. The Motivating Problem` + `> [!abstract] Why We Need This Now`)**:
+> **Rich Multi-Block Theory + Dual-Note Routing**:
+> For **every node**, write Blocks 1–4 in `Lessons/<topic>.md` (`Append: true`), mirror the full explanation in chat, and plot Block 5 (the quiz) in `Quizzes/<topic> - Practice.md` (`Append: true`):
+> 1. **Block 1 — Motivate (`### 1. The Motivating Problem` + `> [!abstract] Why We Need This Now` in `Lessons/<topic>.md`)**:
 >    - Start from square one: why are we even bringing this in right now? What concrete problem, paradox, or limitation of our current model forces us down this path?
-> 2. **Block 2 — Establish the Foundation (`> [!abstract] Unconditional Truth / Core Definition`)**:
+> 2. **Block 2 — Establish the Foundation (`> [!abstract] Unconditional Truth / Core Definition` in `Lessons/<topic>.md`)**:
 >    - State the foundational unconditional truth plainly, at face value, with zero caveats. Surface a universal statement (*"ALL X is done through {____}"*) or a real definition that carves reality at its joints.
-> 3. **Block 3 — Motivated Derivation & Deep Theory (`### 2. How Could You Have Discovered This?` + `> [!abstract] Step-by-Step Derivation & Intuition`)**:
+> 3. **Block 3 — Motivated Derivation & Deep Theory (`### 2. How Could You Have Discovered This?` + `> [!abstract] Step-by-Step Derivation & Intuition` in `Lessons/<topic>.md`)**:
 >    - Walk through the mathematical, physical, or logical derivation step by step (3Blue1Brown style).
 >    - Motivate *every intermediate step*: why try this representation? Why manipulate the equation this way? What concrete intuition or worked micro-example makes the mechanism click?
 >    - Include a clean visual diagram (Mermaid or SVG via `visualize`) whenever structure or geometry makes the derivation clearer.
-> 4. **Block 4 — Connect to the Graph (`> [!tip] Connecting the Graph & Vault Isomorphisms`)**:
+> 4. **Block 4 — Connect to the Graph (`> [!tip] Connecting the Graph & Vault Isomorphisms` in `Lessons/<topic>.md`)**:
 >    - Make the dependency edge explicit: show exactly how this new node hangs off the previous nodes and connects to prior vault notes via `[[Prior Note]]` wikilinks.
 >    - Highlight the "click" — how a pile of seemingly separate facts collapses into this single generating principle.
-> 5. **Block 5 — Plot Quiz & Check Comprehension (`> [!question] Quiz — Node N Check`)**:
->    - Append the `> [!question]` callout (with the question stem and numbered bare-claim options `1.`–`4.`) to `Lessons/<topic>.md` in the same turn as calling `ask_question`.
->    - When the user answers, immediately append the graded result callout (`> [!success] Quiz — correct ✓`, `> [!failure] Quiz — incorrect ✗`, or `> [!question] Quiz — I don't know`) containing:
+> 5. **Block 5 — Plot Quiz & Inoculate Against Misconceptions (`> [!question] Quiz — Node N Check` in `Quizzes/<topic> - Practice.md`)**:
+>    - Append the `> [!question]` callout (with the question stem and numbered bare-claim options `1.`–`4.`) to `Quizzes/<topic> - Practice.md` in the same turn as calling `ask_question`.
+>    - When the user answers, immediately append the graded result callout (`> [!success] Quiz — correct ✓`, `> [!failure] Quiz — incorrect ✗`, or `> [!question] Quiz — I don't know`) to `Quizzes/<topic> - Practice.md` containing:
 >      - `Your answer: <index>. <label>`
 >      - `Correct answer: <index>`
 >      - Full theoretical explanation of *why* the correct claim holds and *why* the chosen distractor fails.
->    - If he missed it or chose *"I don't know"*, that node isn't solid yet! Stop, append a targeted **Repair Block** (`> [!abstract] Repairing the Foundation`) that addresses the exact gap from a fresh angle, and run a follow-up verification quiz before advancing to Node $N+1$.
+>    - **Error Repair & Theory Inoculation**: If he missed it or chose *"I don't know"*, that node isn't solid yet! Stop and perform **both** actions before re-quizzing:
+>      1. Append a targeted **Repair Block** (`> [!abstract] Repairing the Foundation`) and a follow-up verification quiz to `Quizzes/<topic> - Practice.md`.
+>      2. Append a compact, **collapsible callout** (`> [!tip]- Common Trap & Nuance: <Short Title>`) to `Lessons/<topic>.md` (`Append: true`) that concisely records the misconception and the corrective intuition. Because it uses `-` (`[!tip]-`), it stays folded by default to keep the Theory note visually clean while ensuring hard-won lessons are never lost.
 
 Repeat this full multi-block loop for each node in the dependency map. Never front-load all foundations at once or rush multiple nodes into a single turn.
 
@@ -190,21 +191,25 @@ Repeat this full multi-block loop for each node in the dependency map. Never fro
 
 ## Obsidian Vault Integration & Formatting Rules
 
-This workspace is a self-contained Obsidian Vault. Everything taught is written directly to `Lessons/<topic>.md`:
+This workspace is a self-contained Obsidian Vault using the **Dual-Note Cockpit** (`Lessons/<topic>.md` for permanent theory, `Quizzes/<topic> - Practice.md` for interactive quizzes and repairs):
 
 1. **Strict Append-Only Updates**:
-   - After creating the initial lesson file at the start of Phase 1 (`Overwrite: false`), NEVER overwrite the entire file (`Overwrite: true`). Always use `write_to_file` with `Append: true` to append each new question, graded quiz feedback, and multi-block node lesson to the bottom.
-2. **Auto-Popup Active Note**:
-   - Right after creating `Lessons/<topic>.md` in Phase 1, run `powershell -ExecutionPolicy Bypass -File scripts/Open-ObsidianNote.ps1 "Lessons/<topic>.md"` so the note immediately pops up as the active tab in Obsidian.
-3. **Obsidian Callout Types (Matching Amos Blomqvist's `md-log` Conventions)**:
-   - `> [!abstract] Title` — Theoretical blocks (Motivation, Unconditional Truth, Step-by-Step Derivation, Repair).
-   - `> [!tip] Title` — Graph connections, vault `[[wikilink]]` bridges, and "the click" syntheses.
-   - `> [!question] Quiz — <Title>` or `> [!question] Question — <Title>` — Active probe or comprehension check (written to the note **with numbered options before the user answers**).
-   - `> [!success] Quiz — correct ✓` — Graded feedback when the user answers a quiz correctly (includes `Your answer:`, `Correct answer:`, and deep explanation).
-   - `> [!failure] Quiz — incorrect ✗` — Graded feedback when the user picks a distractor (diagnoses the exact misconception).
-   - `> [!question] Quiz — I don't know` — Logged when the user picks `"I don't know (explore this gap)"` (never treated as a red failure `✗`; triggers exploration of that gap).
-   - `> [!example] Answer` — Logged when the user answers an open preference/goal question (`ask_user_question` equivalent).
-   - `> [!quote] YOU` — User reflections or freeform questions.
+   - After creating `Lessons/<topic>.md` and `Quizzes/<topic> - Practice.md` at the start of Phase 1 (`Overwrite: false`), NEVER overwrite either file (`Overwrite: true`). Always use `write_to_file` with `Append: true`.
+2. **One-Shot Cockpit Initialization**:
+   - Right after creating both notes in Phase 1, run `powershell -ExecutionPolicy Bypass -File scripts/Open-ObsidianNote.ps1 "Lessons/<topic>.md"` ONCE. The `antigravity-cli-sidebar` plugin automatically opens `Lessons/<topic>.md` on the left and `Quizzes/<topic> - Practice.md` on the right (and can be toggled between Split Cockpit and Single-Pane Auto-Switch in Obsidian Settings -> Antigravity CLI).
+3. **Obsidian Callout Types**:
+   - **In `Lessons/<topic>.md` (Theory Note)**:
+     - `> [!abstract] Title` — Theoretical blocks (Core Principle, Motivation, Unconditional Truth, Step-by-Step Derivation).
+     - `> [!tip] Title` — Dual-note navigation banner, graph connections, vault `[[wikilink]]` bridges, and "the click" syntheses.
+     - `> [!tip]- Common Trap & Nuance: <Title>` — **Collapsible** (folded by default) inoculation block added when a misconception is uncovered and repaired during a quiz.
+   - **In `Quizzes/<topic> - Practice.md` (Practice Note)**:
+     - `> [!question] Quiz — <Title>` or `> [!question] Question — <Title>` — Active probe or comprehension check (written **with numbered options before the user answers**).
+     - `> [!success] Quiz — correct ✓` — Graded feedback when the user answers a quiz correctly (includes `Your answer:`, `Correct answer:`, and deep explanation).
+     - `> [!failure] Quiz — incorrect ✗` — Graded feedback when the user picks a distractor (diagnoses the exact misconception).
+     - `> [!question] Quiz — I don't know` — Logged when the user picks `"I don't know (explore this gap)"` (triggers exploration of that gap).
+     - `> [!abstract] Repairing the Foundation` — Deep diagnostic repair explanation written when a quiz is missed.
+     - `> [!example] Answer` — Logged when the user answers an open preference/goal question.
+     - `> [!quote] YOU` — User reflections or freeform questions.
 4. **LaTeX Math Everywhere**:
    - Whenever math notation is involved — explanations, questions, quiz options, and explanations — write it in native LaTeX instead of plain-text approximations:
    - Inline: `$f(x) = x^2$`

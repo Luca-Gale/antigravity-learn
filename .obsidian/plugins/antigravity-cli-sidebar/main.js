@@ -9604,12 +9604,64 @@ var TerminalView = class extends import_obsidian.ItemView {
 // src/main.ts
 var DEFAULT_SETTINGS = {
   command: "agy",
-  args: "--dangerously-skip-permissions --continue"
+  args: "--dangerously-skip-permissions --continue",
+  cockpitMode: "split"
 };
 var AntigravityPlugin = class extends import_obsidian2.Plugin {
   constructor() {
     super(...arguments);
     __publicField(this, "settings");
+  }
+  async openInCockpit(file) {
+    if (!this.app.workspace.layoutReady) return;
+    if (!file || !file.path || !file.path.endsWith(".md")) return;
+    const isLesson = file.path.startsWith("Lessons/");
+    const isQuiz = file.path.startsWith("Quizzes/");
+    if (!isLesson && !isQuiz) return;
+
+    const mode = this.settings.cockpitMode || "split";
+    const mdLeaves = this.app.workspace.getLeavesOfType("markdown");
+
+    if (mode === "tabs") {
+      const leaf = mdLeaves[0] || this.app.workspace.getLeaf(false);
+      if (leaf && (!leaf.view || !leaf.view.file || leaf.view.file.path !== file.path)) {
+        await leaf.openFile(file, { active: false });
+      }
+      return;
+    }
+
+    // Default "split" mode: Left pane = Theory (Lessons/), Right pane = Practice (Quizzes/)
+    const alreadyOpen = mdLeaves.find((l) => l.view && l.view.file && l.view.file.path === file.path);
+    if (alreadyOpen) return;
+
+    if (isLesson) {
+      let theoryLeaf = mdLeaves.find((l) => l.view && l.view.file && l.view.file.path.startsWith("Lessons/"));
+      if (!theoryLeaf) {
+        theoryLeaf = mdLeaves.find((l) => !l.view || !l.view.file || !l.view.file.path.startsWith("Quizzes/"));
+      }
+      if (!theoryLeaf) {
+        const quizLeaf = mdLeaves.find((l) => l.view && l.view.file && l.view.file.path.startsWith("Quizzes/"));
+        theoryLeaf = quizLeaf ? this.app.workspace.createLeafBySplit(quizLeaf, "vertical", true) : this.app.workspace.getLeaf(false);
+      }
+      if (theoryLeaf) {
+        await theoryLeaf.openFile(file, { active: false });
+      }
+    } else if (isQuiz) {
+      let quizLeaf = mdLeaves.find((l) => l.view && l.view.file && l.view.file.path.startsWith("Quizzes/"));
+      if (!quizLeaf) {
+        const theoryLeaf = mdLeaves.find((l) => l.view && l.view.file && l.view.file.path.startsWith("Lessons/")) || mdLeaves[0];
+        quizLeaf = mdLeaves.find((l) => l !== theoryLeaf);
+        if (!quizLeaf && theoryLeaf) {
+          quizLeaf = this.app.workspace.createLeafBySplit(theoryLeaf, "vertical");
+        }
+        if (!quizLeaf) {
+          quizLeaf = this.app.workspace.getLeaf(false);
+        }
+      }
+      if (quizLeaf) {
+        await quizLeaf.openFile(file, { active: false });
+      }
+    }
   }
   async onload() {
     await this.loadSettings();
@@ -9630,13 +9682,12 @@ var AntigravityPlugin = class extends import_obsidian2.Plugin {
     this.addSettingTab(new AntigravitySettingTab(this.app, this));
     this.registerEvent(
       this.app.vault.on("create", (file) => {
-        if (!this.app.workspace.layoutReady) return;
-        if (file && file.path && file.path.startsWith("Lessons/") && file.path.endsWith(".md")) {
-          const leaf = this.app.workspace.getLeaf(false);
-          if (leaf) {
-            leaf.openFile(file, { active: true });
-          }
-        }
+        this.openInCockpit(file);
+      })
+    );
+    this.registerEvent(
+      this.app.vault.on("modify", (file) => {
+        this.openInCockpit(file);
       })
     );
   }
@@ -9710,6 +9761,10 @@ var AntigravitySettingTab = class extends import_obsidian2.PluginSettingTab {
     }));
     new import_obsidian2.Setting(containerEl).setName("Default Arguments").setDesc("Default arguments to pass to the Antigravity CLI.").addText((text) => text.setPlaceholder("--dangerously-skip-permissions --continue").setValue(this.plugin.settings.args).onChange(async (value) => {
       this.plugin.settings.args = value;
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian2.Setting(containerEl).setName("Dual-Note Cockpit Layout").setDesc("How Theory (Lessons/) and Practice (Quizzes/) notes are displayed during a lesson.").addDropdown((drop) => drop.addOption("split", "Side-by-Side Split Cockpit (Theory Left, Quiz Right)").addOption("tabs", "Single Pane Auto-Switch (Flip Between Theory & Quiz)").setValue(this.plugin.settings.cockpitMode || "split").onChange(async (value) => {
+      this.plugin.settings.cockpitMode = value;
       await this.plugin.saveSettings();
     }));
   }
